@@ -15,7 +15,6 @@ class MyRouter extends Component {
      */
     render(){ 
         if(this.state.QueryString.length >= 32){
-            console.log(this.state.QueryString)
             return(
                 <PostController
                 data={{'pwHash':this.state.QueryString}}

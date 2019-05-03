@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button } from 'reactstrap';
+import { Input, Button } from 'reactstrap';
 import { PostController } from './index.js'
 export default class PassGen extends Component {
     constructor(props) {
@@ -10,6 +10,7 @@ export default class PassGen extends Component {
             'sending': false,
             'buttonDisabled': false
         }
+        this.handleSubmit = this.handleSubmit.bind(this)
     }
     /**ToDo,
      * Add more seeds, make more random or something, but for now this will do
@@ -24,12 +25,20 @@ export default class PassGen extends Component {
             let kindaRandom = Math.floor((Math.random() * charSet.length) + 1);
             pw += charSet[kindaRandom]
         }
-        let myBuffer = await hashIt(pw);
+        this.setState((state, props) => {
+            return { "pw": pw };
+        });
+    }
+    handleSubmit = async () => {
+        let myBuffer = await digestMessage(this.state.pw);
         let pwHash = hexString(myBuffer);
         window.history.replaceState({}, "Ticking", "?" + pwHash);
-        this.setState((state, props) => {
-            return { "pw": pw, "pwHash": pwHash, 'sending': true, buttonDisabled: true };
+        this.setState({
+            "pwHash": pwHash, 'sending': true, buttonDisabled: true 
         });
+    }
+    handleInputChange = (e) => {
+        this.setState({ "pw": e.target.value});
     }
 
     render() {
@@ -37,12 +46,20 @@ export default class PassGen extends Component {
             <div>
                 <Button
                     onClick={(e) => this.generate()}   //Onclick is async :)
+                >
+                Generate
+                </Button>
+                <Button
+                    onClick={(e) => this.handleSubmit(e)}
                     disabled={this.state.buttonDisabled}
                 >
-                    Generate
-            </Button>
+                Submit
+                </Button>
                 <br></br>
-                password: {this.state.pw}
+                <Input
+                value = {this.state.pw}
+                onChange = {(e) => this.handleInputChange(e)}
+                />
                 <br></br>
                 {
                     (this.state.sending) ?
@@ -61,19 +78,10 @@ export default class PassGen extends Component {
 * This is all Vanilla JS, (other than dealing with callbacks with async)
 *  
 */
-//This is a promise, so chain away we go, 
-//Really after having a better understanding of the async stuff in react, this can all be just one function, 
-//called inside this.generate
 const digestMessage = async (message) => {
     const encoder = new TextEncoder();
     const data = await encoder.encode(message);
     return crypto.subtle.digest('SHA-256', data);
-}
-//Basically just an async wrapper, Again it is uneeded 
-//gets called within onClick which IS ASYNC
-const hashIt = async (pw) => {
-    let message = await digestMessage(pw)
-    return message;
 }
 //Make it human Readable
 const hexString = (buffer) => {

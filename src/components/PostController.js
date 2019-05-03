@@ -26,10 +26,9 @@ export default class PostController extends React.Component {
         }catch(e){return e}
     }
     render(props) {
-        /**Turn the body into JSON, doesn't like objects */
         return(
             <div>
-                    {(!this.props.data.pw) ? 'Retrieved Password: ' + this.state.returnData : 'Generated PassWord!:' + this.state.returnData }
+                    {(!this.props.data.pw) ? 'Retrieved Password: ' + this.state.returnData : 'Generated PassWord!' + this.state.returnData }
             </div>
         )
     }
